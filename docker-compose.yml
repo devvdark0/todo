@@ -1,0 +1,20 @@
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: todo-mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root-password
+      MYSQL_DATABASE: todo-db
+      MYSQL_USER: todo-user
+      MYSQL_PASSWORD: todo-password
+      volumes: -data:/var/lib/mysql
+      networks: -todo-network
+
+volumes:
+  data:
+
+networks:
+  todo-network:
+    driver: bridge
