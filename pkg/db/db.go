@@ -7,6 +7,7 @@ import (
 )
 
 func InitDB() (*sql.DB, error) {
+	//TODO: change the dsn to use the environment variables
 	dsn := "todo-user:todo-password@tcp(localhost:3306)/todo-db"
 
 	db, err := sql.Open("mysql", dsn)
