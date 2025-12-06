@@ -1,8 +1,11 @@
 package service
 
 import (
+	"time"
+
 	"github.com/devvdark0/todo/internal/model"
 	"github.com/devvdark0/todo/internal/storage"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -20,4 +23,92 @@ type TodoService struct {
 
 func NewService(store *storage.TodoStore) *TodoService {
 	return &TodoService{storage: store}
+}
+
+func (s *TodoService) ListTasks() ([]model.Task, error) {
+	tasks, err := s.storage.List()
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
+func (s *TodoService) GetTaskByID(id string) (model.Task, error) {
+	uuidId, err := uuid.Parse(id)
+	if err != nil {
+		return model.Task{}, err
+	}
+
+	task, err := s.storage.Get(uuidId)
+	if err != nil {
+		return model.Task{}, err
+	}
+
+	return task, nil
+}
+
+func (s *TodoService) CreateTask(req model.CreateTaskRequest) error {
+	validator := validator.New()
+	if err := validator.Struct(req); err != nil {
+		return err
+	}
+
+	id := uuid.New()
+	task := model.Task{
+		ID:          id,
+		Title:       req.Title,
+		Description: req.Description,
+		IsDone:      req.IsDone,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	if err := s.storage.Create(task); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TODO: maybe rethink
+func (s *TodoService) UpdateTask(id string, req model.UpdateTaskRequest) error {
+	uuidId, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	task, err := s.storage.Get(uuidId)
+	if err != nil {
+		return err
+	}
+
+	if req.Title != nil {
+		task.Title = *req.Title
+	}
+	if req.Description != nil {
+		task.Description = *req.Description
+	}
+	if req.IsDone != nil {
+		task.IsDone = *req.IsDone
+	}
+
+	if err := s.storage.Update(uuidId, task); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *TodoService) DeleteTask(id string) error {
+	uuidId, err := uuid.Parse(id)
+	if err != nil {
+		return err
+	}
+
+	if err = s.storage.Delete(uuidId); err != nil {
+		return err
+	}
+
+	return nil
 }
