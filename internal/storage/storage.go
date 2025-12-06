@@ -42,7 +42,7 @@ func (s *TodoStore) Update(id uuid.UUID, task model.Task) error {
 		return err
 	}
 
-	return ni
+	return nil
 }
 
 func (s *TodoStore) List() ([]model.Task, error) {
@@ -56,12 +56,12 @@ func (s *TodoStore) List() ([]model.Task, error) {
 	for rows.Next() {
 		var task model.Task
 		rows.Scan(
-			task.ID,
-			task.Title,
-			task.Description,
-			task.IsDone,
-			task.CreatedAt,
-			task.UpdatedAt,
+			&task.ID,
+			&task.Title,
+			&task.Description,
+			&task.IsDone,
+			&task.CreatedAt,
+			&task.UpdatedAt,
 		)
 		tasks = append(tasks, task)
 	}
