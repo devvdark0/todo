@@ -27,7 +27,15 @@ func (s *TodoStore) Create(task model.Task) error {
 func (s *TodoStore) Get(id uuid.UUID) (model.Task, error) {
 	var task model.Task
 	query := `SELECT id, title, description, is_done, created_at, updated_at FROM tasks WHERE id = ?`
-	err := s.db.QueryRow(query, id).Scan(&task)
+	err := s.db.QueryRow(query, id).
+		Scan(
+			&task.ID,
+			&task.Title,
+			&task.Description,
+			&task.IsDone,
+			&task.CreatedAt,
+			&task.UpdatedAt,
+		)
 	if err != nil {
 		return model.Task{}, err
 	}
