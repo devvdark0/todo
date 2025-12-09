@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/devvdark0/todo/internal/config"
-	"log"
+	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/devvdark0/todo/internal/handler"
@@ -15,17 +15,17 @@ import (
 func main() {
 	cfg, err := config.MustLoad()
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
+
+	log := configureLogger(cfg)
 
 	database, err := db.InitDB(cfg)
 	if err != nil {
-		log.Fatal(err)
+		log.Panic("failed to connect to the database: " + err.Error())
 	}
 	defer database.Close()
-	log.Println("successfully connected to mariadb!")
-
-	//TODO: init logger
+	log.Info("successfully connected to mariadb!")
 
 	store := storage.NewStore(database)
 	todoService := service.NewService(store)
@@ -41,7 +41,7 @@ func main() {
 		IdleTimeout:  cfg.IdleTimeout,
 	}
 
-	log.Println("starting server on port :80...")
+	log.Info("starting server on port :80...")
 	if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}
@@ -55,4 +55,11 @@ func configureRouter(todoHandler *handler.TodoHandler) *chi.Mux {
 	router.Put("/tasks/{id}", todoHandler.UpdateTask)
 	router.Delete("/tasks/{id}", todoHandler.DeleteTask)
 	return router
+}
+
+func configureLogger(cfg *config.Config) *zap.Logger {
+	if cfg.Env == "local" {
+		return zap.Must(zap.NewDevelopment())
+	}
+	return zap.Must(zap.NewProduction())
 }
