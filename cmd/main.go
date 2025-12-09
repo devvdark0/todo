@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/devvdark0/todo/internal/config"
 	"log"
 	"net/http"
 
@@ -12,12 +13,19 @@ import (
 )
 
 func main() {
-	database, err := db.InitDB()
+	cfg, err := config.MustLoad()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	database, err := db.InitDB(cfg)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer database.Close()
 	log.Println("successfully connected to mariadb!")
+
+	//TODO: init logger
 
 	store := storage.NewStore(database)
 	todoService := service.NewService(store)
@@ -25,9 +33,17 @@ func main() {
 
 	router := configureRouter(todoHandler)
 
+	srv := http.Server{
+		Addr:         "localhost:" + cfg.Port,
+		Handler:      router,
+		ReadTimeout:  cfg.Timeout,
+		WriteTimeout: cfg.Timeout,
+		IdleTimeout:  cfg.IdleTimeout,
+	}
+
 	log.Println("starting server on port :80...")
-	if err := http.ListenAndServe(":80", router); err != nil {
-		log.Fatal(err)
+	if err := srv.ListenAndServe(); err != nil {
+		panic(err)
 	}
 }
 
