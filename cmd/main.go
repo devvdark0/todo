@@ -27,9 +27,10 @@ func main() {
 	defer database.Close()
 	log.Info("successfully connected to mariadb!")
 
-	store := storage.NewStore(database)
+	//TODO: impl log in layers
+	store := storage.NewStore(database, log)
 	todoService := service.NewService(store)
-	todoHandler := handler.NewHandler(todoService)
+	todoHandler := handler.NewHandler(todoService, log)
 
 	router := configureRouter(todoHandler)
 
@@ -41,7 +42,7 @@ func main() {
 		IdleTimeout:  cfg.IdleTimeout,
 	}
 
-	log.Info("starting server on port :80...")
+	log.Info("starting server on port:", zap.String("port", cfg.Port))
 	if err := srv.ListenAndServe(); err != nil {
 		panic(err)
 	}

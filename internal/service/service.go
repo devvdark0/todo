@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/devvdark0/todo/internal/model"
@@ -28,7 +29,7 @@ func NewService(store *storage.TodoStore) *TodoService {
 func (s *TodoService) ListTasks() ([]model.Task, error) {
 	tasks, err := s.storage.List()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("list tasks service: %w", err)
 	}
 
 	return tasks, nil
@@ -37,12 +38,12 @@ func (s *TodoService) ListTasks() ([]model.Task, error) {
 func (s *TodoService) GetTaskByID(id string) (model.Task, error) {
 	uuidId, err := uuid.Parse(id)
 	if err != nil {
-		return model.Task{}, err
+		return model.Task{}, fmt.Errorf("get task service: %w", err)
 	}
 
 	task, err := s.storage.Get(uuidId)
 	if err != nil {
-		return model.Task{}, err
+		return model.Task{}, fmt.Errorf("get task service: %w", err)
 	}
 
 	return task, nil
@@ -51,7 +52,7 @@ func (s *TodoService) GetTaskByID(id string) (model.Task, error) {
 func (s *TodoService) CreateTask(req model.CreateTaskRequest) error {
 	validator := validator.New()
 	if err := validator.Struct(req); err != nil {
-		return err
+		return fmt.Errorf("create user service: %w", err)
 	}
 
 	id := uuid.New()
@@ -65,22 +66,21 @@ func (s *TodoService) CreateTask(req model.CreateTaskRequest) error {
 	}
 
 	if err := s.storage.Create(task); err != nil {
-		return err
+		return fmt.Errorf("create user service: %w", err)
 	}
 
 	return nil
 }
 
-// TODO: maybe rethink
 func (s *TodoService) UpdateTask(id string, req model.UpdateTaskRequest) error {
 	uuidId, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("delete task service: %w", err)
 	}
 
 	task, err := s.storage.Get(uuidId)
 	if err != nil {
-		return err
+		return fmt.Errorf("delete task service: %w", err)
 	}
 
 	if req.Title != nil {
@@ -94,7 +94,7 @@ func (s *TodoService) UpdateTask(id string, req model.UpdateTaskRequest) error {
 	}
 
 	if err := s.storage.Update(uuidId, task); err != nil {
-		return err
+		return fmt.Errorf("delete task service: %w", err)
 	}
 
 	return nil
@@ -103,11 +103,11 @@ func (s *TodoService) UpdateTask(id string, req model.UpdateTaskRequest) error {
 func (s *TodoService) DeleteTask(id string) error {
 	uuidId, err := uuid.Parse(id)
 	if err != nil {
-		return err
+		return fmt.Errorf("update task service: %w", err)
 	}
 
 	if err = s.storage.Delete(uuidId); err != nil {
-		return err
+		return fmt.Errorf("update task service: %w", err)
 	}
 
 	return nil
