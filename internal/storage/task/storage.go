@@ -1,4 +1,4 @@
-package storage
+package task
 
 import (
 	"database/sql"

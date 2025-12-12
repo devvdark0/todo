@@ -2,10 +2,10 @@ package service
 
 import (
 	"fmt"
+	"github.com/devvdark0/todo/internal/storage/task"
 	"time"
 
 	"github.com/devvdark0/todo/internal/model"
-	"github.com/devvdark0/todo/internal/storage"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
@@ -22,7 +22,7 @@ type TodoService struct {
 	storage Storage
 }
 
-func NewService(store *storage.TodoStore) *TodoService {
+func NewService(store *task.TodoStore) *TodoService {
 	return &TodoService{storage: store}
 }
 

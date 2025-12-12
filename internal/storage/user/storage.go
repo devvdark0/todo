@@ -1,0 +1,48 @@
+package user
+
+import (
+	"database/sql"
+	"github.com/devvdark0/todo/internal/model"
+	"github.com/google/uuid"
+	"go.uber.org/zap"
+)
+
+type Store struct {
+	db  *sql.DB
+	log *zap.Logger
+}
+
+func NewUserStore(db *sql.DB, log *zap.Logger) *Store {
+	return &Store{
+		db:  db,
+		log: log,
+	}
+}
+
+func (s *Store) Create(user model.User) error {
+	query := `INSERT INTO users(id, email, password) VALUES(?,?,?)`
+	_, err := s.db.Exec(query, user.ID, user.Email, user.Password)
+	if err != nil {
+		s.log.Error("db insert user error", zap.Error(err))
+		return err
+	}
+
+	return nil
+}
+
+func (s *Store) Get(id uuid.UUID) (model.User, error) {
+	query := `SELECT id, email, password FROM users WHERE id=?`
+	var user model.User
+	err := s.db.QueryRow(query, id).
+		Scan(
+			&user.ID,
+			&user.Email,
+			&user.Password,
+		)
+	if err != nil {
+		s.log.Error("db select user error", zap.Error(err))
+		return model.User{}, err
+	}
+
+	return user, nil
+}
