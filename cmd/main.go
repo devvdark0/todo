@@ -27,7 +27,6 @@ func main() {
 	defer database.Close()
 	log.Info("successfully connected to mariadb!")
 
-	//TODO: impl log in layers
 	store := task.NewStore(database, log)
 	todoService := task2.NewService(store)
 	todoHandler := task3.NewHandler(todoService, log)
