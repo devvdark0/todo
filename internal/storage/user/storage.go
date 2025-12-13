@@ -20,8 +20,8 @@ func NewUserStore(db *sql.DB, log *zap.Logger) *Store {
 }
 
 func (s *Store) Create(user model.User) error {
-	query := `INSERT INTO users(id, email, password) VALUES(?,?,?)`
-	_, err := s.db.Exec(query, user.ID, user.Email, user.Password)
+	query := `INSERT INTO users(id, email, username, password) VALUES(?,?,?)`
+	_, err := s.db.Exec(query, user.ID, user.Email, user.Username, user.Password)
 	if err != nil {
 		s.log.Error("db insert user error", zap.Error(err))
 		return err
@@ -30,13 +30,32 @@ func (s *Store) Create(user model.User) error {
 	return nil
 }
 
-func (s *Store) Get(id uuid.UUID) (model.User, error) {
-	query := `SELECT id, email, password FROM users WHERE id=?`
+func (s *Store) GetByID(id uuid.UUID) (model.User, error) {
+	query := `SELECT id, email, username, password FROM users WHERE id=?`
 	var user model.User
 	err := s.db.QueryRow(query, id).
 		Scan(
 			&user.ID,
 			&user.Email,
+			&user.Username,
+			&user.Password,
+		)
+	if err != nil {
+		s.log.Error("db select user error", zap.Error(err))
+		return model.User{}, err
+	}
+
+	return user, nil
+}
+
+func (s *Store) GetByEmail(email string) (model.User, error) {
+	query := `SELECT id, email, username, password FROM users WHERE email=?`
+	var user model.User
+	err := s.db.QueryRow(query, email).
+		Scan(
+			&user.ID,
+			&user.Email,
+			&user.Username,
 			&user.Password,
 		)
 	if err != nil {

@@ -2,12 +2,12 @@ package main
 
 import (
 	"github.com/devvdark0/todo/internal/config"
+	task3 "github.com/devvdark0/todo/internal/handler/task"
+	task2 "github.com/devvdark0/todo/internal/service/task"
+	"github.com/devvdark0/todo/internal/storage/task"
 	"go.uber.org/zap"
 	"net/http"
 
-	"github.com/devvdark0/todo/internal/handler"
-	"github.com/devvdark0/todo/internal/service"
-	"github.com/devvdark0/todo/internal/storage"
 	"github.com/devvdark0/todo/pkg/db"
 	"github.com/go-chi/chi/v5"
 )
@@ -28,9 +28,9 @@ func main() {
 	log.Info("successfully connected to mariadb!")
 
 	//TODO: impl log in layers
-	store := storage.NewStore(database, log)
-	todoService := service.NewService(store)
-	todoHandler := handler.NewHandler(todoService, log)
+	store := task.NewStore(database, log)
+	todoService := task2.NewService(store)
+	todoHandler := task3.NewHandler(todoService, log)
 
 	router := configureRouter(todoHandler)
 
@@ -48,7 +48,7 @@ func main() {
 	}
 }
 
-func configureRouter(todoHandler *handler.TodoHandler) *chi.Mux {
+func configureRouter(todoHandler *task3.TodoHandler) *chi.Mux {
 	router := chi.NewRouter()
 	router.Get("/tasks", todoHandler.GetTasks)
 	router.Post("/tasks", todoHandler.CreateTask)

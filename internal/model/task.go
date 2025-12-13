@@ -11,6 +11,7 @@ type Task struct {
 	Title       string
 	Description string
 	IsDone      bool
+	UserId      uuid.UUID
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }

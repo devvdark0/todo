@@ -1,21 +1,21 @@
-package handler
+package task
 
 import (
 	"encoding/json"
+	"github.com/devvdark0/todo/internal/service/task"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 	"net/http"
 
 	"github.com/devvdark0/todo/internal/model"
-	"github.com/devvdark0/todo/internal/service"
 )
 
 type TodoHandler struct {
-	todoService service.TodoService
+	todoService task.TodoService
 	log         *zap.Logger
 }
 
-func NewHandler(service *service.TodoService, log *zap.Logger) *TodoHandler {
+func NewHandler(service *task.TodoService, log *zap.Logger) *TodoHandler {
 	return &TodoHandler{todoService: *service, log: log}
 }
 
