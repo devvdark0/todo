@@ -23,3 +23,9 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token string `json:"token"`
 }
+
+type UserResponse struct {
+	Email string `json:"email"`
+	Username string `json:"username"`
+	Task Task `json:"task"`
+}

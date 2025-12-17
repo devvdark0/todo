@@ -26,7 +26,7 @@ func (s *TodoStore) Create(task model.Task) error {
 		task.Title,
 		task.Description,
 		task.IsDone,
-		task.IsDone,
+		task.UserId,
 		task.CreatedAt,
 		task.UpdatedAt,
 	)
@@ -39,7 +39,7 @@ func (s *TodoStore) Create(task model.Task) error {
 
 func (s *TodoStore) GetByID(taskID, userID uuid.UUID) (*model.Task, error) {
 	var task model.Task
-	query := `SELECT id, title, description, is_done, created_at, updated_at FROM tasks WHERE id = ? AND user_id=?`
+	query := `SELECT id, title, description, is_done, user_id, created_at, updated_at FROM tasks WHERE id=? AND user_id=?`
 	err := s.db.QueryRow(query, taskID, userID).
 		Scan(
 			&task.ID,
@@ -59,7 +59,7 @@ func (s *TodoStore) GetByID(taskID, userID uuid.UUID) (*model.Task, error) {
 }
 
 func (s *TodoStore) GetByTitle(title string, userID uuid.UUID) (*model.Task, error) {
-	query := `SELECT id, title, description, is_done, user_id, created_at, updated_at FROM tasks WHERE title LIKE '%?%' AND user_id=?`
+	query := `SELECT id, title, description, is_done, user_id, created_at, updated_at FROM tasks WHERE title = ? AND user_id=?`
 	var task model.Task
 
 	err := s.db.QueryRow(query, title, userID).

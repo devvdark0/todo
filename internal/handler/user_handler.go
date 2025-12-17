@@ -5,18 +5,16 @@ import (
 	"net/http"
 
 	"github.com/devvdark0/todo/internal/middleware"
-	"github.com/devvdark0/todo/internal/service/task"
-	storage "github.com/devvdark0/todo/internal/storage/user"
+	"github.com/devvdark0/todo/internal/service"
 	"go.uber.org/zap"
 )
 
 type UserHandler struct {
-	userStore storage.Store
-	taskStore task.Storage
+	userStore service.UserStorage
 	log       *zap.Logger
 }
 
-func NewUserHandler(store storage.Store) *UserHandler {
+func NewUserHandler(store service.UserStorage) *UserHandler {
 	return &UserHandler{userStore: store}
 }
 

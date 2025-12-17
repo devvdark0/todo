@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 
 	"github.com/devvdark0/todo/internal/model"
 	"github.com/devvdark0/todo/internal/service"
+	"github.com/gorilla/mux"
 )
 
 type TodoHandler struct {
@@ -27,7 +27,7 @@ func (h *TodoHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		zap.String("method", r.Method),
 	)
 
-	userID := r.Context().Value("user_id").(string)
+	userID := r.Context().Value("userId").(string)
 
 	tasks, err := h.todoService.ListTasks(userID)
 	if err != nil {
@@ -36,7 +36,7 @@ func (h *TodoHandler) GetTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewEncoder(w).Encode(&tasks); err != nil {
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		h.log.Error("failed to encode tasks into json", zap.Error(err))
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,8 +49,8 @@ func (h *TodoHandler) GetTask(w http.ResponseWriter, r *http.Request) {
 		zap.String("path", r.URL.Path),
 		zap.String("method", r.Method),
 	)
-	taskID := chi.URLParam(r, "id")
-	userID := r.Context().Value("user_id").(string)
+	taskID := mux.Vars(r)["task_id"]
+	userID := r.Context().Value("userId").(string)
 
 	task, err := h.todoService.GetTaskByID(taskID, userID)
 	if err != nil {
@@ -79,7 +79,7 @@ func (h *TodoHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userId, ok := r.Context().Value("user_id").(string)
+	userId, ok := r.Context().Value("userId").(string)
 	if !ok {
 		h.log.Error("unauthorized")
 		http.Error(w, "you are not login into service", http.StatusUnauthorized)
@@ -102,8 +102,8 @@ func (h *TodoHandler) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		zap.String("path", r.URL.Path),
 		zap.String("method", r.Method),
 	)
-	taskID := chi.URLParam(r, "id")
-	userID, ok := r.Context().Value("user_id").(string)
+	taskID := mux.Vars(r)["task_id"]
+	userID, ok := r.Context().Value("userId").(string)
 	if !ok {
 		h.log.Error("unauthorized")
 		http.Error(w, "you are not log in into service", http.StatusUnauthorized)
@@ -130,8 +130,8 @@ func (h *TodoHandler) DeleteTask(w http.ResponseWriter, r *http.Request) {
 		zap.String("path", r.URL.Path),
 		zap.String("method", r.Method),
 	)
-	taskID := chi.URLParam(r, "id")
-	userID, ok := r.Context().Value("user_id").(string)
+	taskID := mux.Vars(r)["task_id"]
+	userID, ok := r.Context().Value("userId").(string)
 	if !ok {
 		h.log.Error("unauthorized")
 		http.Error(w, "you are not logged in", http.StatusUnauthorized)

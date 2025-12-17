@@ -20,6 +20,7 @@ type CreateTaskRequest struct {
 	Title       string `json:"title" validate:"required,max=255"`
 	Description string `json:"description"`
 	IsDone      bool   `json:"is_done"`
+	UserID      string
 }
 
 type UpdateTaskRequest struct {

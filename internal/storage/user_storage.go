@@ -21,7 +21,7 @@ func NewUserStore(db *sql.DB, log *zap.Logger) *UserStore {
 }
 
 func (s *UserStore) Create(user model.User) error {
-	query := `INSERT INTO users(id, email, username, password) VALUES(?,?,?)`
+	query := `INSERT INTO users(id, email, username, password) VALUES(?,?,?,?)`
 	_, err := s.db.Exec(query, user.ID, user.Email, user.Username, user.Password)
 	if err != nil {
 		s.log.Error("db insert user error", zap.Error(err))
@@ -50,7 +50,7 @@ func (s *UserStore) GetByID(id uuid.UUID) (*model.User, error) {
 }
 
 func (s *UserStore) GetByEmail(email string) (*model.User, error) {
-	query := `SELECT id, email, username, password FROM users WHERE email=?`
+	query := `SELECT id, email, username, password FROM users WHERE email = ?`
 	var user model.User
 	err := s.db.QueryRow(query, email).
 		Scan(

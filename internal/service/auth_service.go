@@ -42,8 +42,8 @@ func NewJWTService(
 }
 
 func (j *JWTService) Register(email, username, password string) error {
-	user, err := j.userStore.GetByEmail(email)
-	if err != nil {
+	_, err := j.userStore.GetByEmail(email)
+	if err == nil {
 		return ErrEmailInUse
 	}
 
@@ -53,18 +53,18 @@ func (j *JWTService) Register(email, username, password string) error {
 
 	hashedPassword, err := auth.HashPassword(password)
 	if err != nil {
-		return err
+		return fmt.Errorf("err hashin pass: %w", err)
 	}
 
-	*user = model.User{
+	user := model.User{
 		ID:       uuid.New(),
 		Username: username,
 		Email:    email,
 		Password: hashedPassword,
 	}
 
-	if err = j.userStore.Create(*user); err != nil {
-		return err
+	if err = j.userStore.Create(user); err != nil {
+		return fmt.Errorf("user creation err: %w", err)
 	}
 
 	return nil
